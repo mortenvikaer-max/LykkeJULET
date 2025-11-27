@@ -1,41 +1,577 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="UTF-8">
-  <title>Julefilm Lykkehjul</title>
+  <meta charset="UTF-8" />
+  <title>Julefilm-lykkehjul</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: sans-serif; text-align: center; margin: 50px; }
-    #wheel { width: 300px; height: 300px; border: 5px solid #333; border-radius: 50%; margin: 0 auto; position: relative; }
-    #spinButton { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
-    #result { margin-top: 30px; font-size: 24px; font-weight: bold; }
+    :root {
+      --bg: #050816;
+      --card: #111827;
+      --accent: #f97316;
+      --accent-soft: #fbbf24;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2933;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #050816 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      margin: 0 0 0.25rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    h1 span {
+      color: var(--accent-soft);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 2rem;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .wheel-card,
+    .info-card {
+      background: radial-gradient(circle at top left, #1f2937 0, #020617 55%);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .wheel-title {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+    }
+
+    .wheel-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: min(320px, 80vw);
+      height: min(320px, 80vw);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid rgba(248, 250, 252, 0.9);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      transition: transform 4s cubic-bezier(0.22, 0.61, 0.36, 1);
+      background: radial-gradient(circle at center, #111827 0, #020617 60%);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 26px solid var(--accent);
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+    }
+
+    .spin-button {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      color: #111827;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(248, 181, 0, 0.5);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .spin-button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .spin-button span.icon {
+      font-size: 1.2rem;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .info-card h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .current-title {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .current-year {
+      margin: 0.25rem 0 0.75rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .streaming-label {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: var(--muted);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.12rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .badge[data-service="Netflix"] {
+      border-color: #ef4444;
+    }
+
+    .badge[data-service="Viaplay"] {
+      border-color: #22c55e;
+    }
+
+    .badge[data-service="Disney+"] {
+      border-color: #38bdf8;
+    }
+
+    .badge[data-service="DRTV"],
+    .badge[data-service="TV 2 Play"] {
+      border-color: #eab308;
+    }
+
+    .badge[data-service="YouSee TV & Film"] {
+      border-color: #10b981;
+    }
+
+    .badge[data-service="discovery+"] {
+      border-color: #a855f7;
+    }
+
+    .result-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .disclaimer {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.8rem;
+      border-top: 1px dashed rgba(148, 163, 184, 0.4);
+      padding-top: 0.6rem;
+    }
+
+    h2.list-heading {
+      margin-top: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+    }
+
+    .list-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .table-wrapper {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 1.25rem;
+      padding: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 520px;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: rgba(15, 23, 42, 0.98);
+      z-index: 1;
+    }
+
+    th,
+    td {
+      padding: 0.45rem 0.5rem;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    tbody tr:hover {
+      background: rgba(248, 250, 252, 0.04);
+    }
+
+    td.index-cell {
+      width: 2.2rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.year-cell {
+      width: 3.2rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.stream-cell .badge {
+      margin-right: 0.2rem;
+      margin-bottom: 0.15rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Julefilm Lykkehjul</h1>
-  <div id="wheel"> 🎄 </div>
-  <button id="spinButton">Spin hjulet!</button>
-  <div id="result"></div>
+  <div class="container">
+    <h1>Julefilm-<span>lykkehjul</span></h1>
+    <p class="subtitle">
+      50 julefilm fra 1990 og frem. Tryk på knappen, spin hjulet – og lad skæbnen
+      vælge aftenens julefilm for dig 🎬
+    </p>
+
+    <div class="grid">
+      <!-- Venstre: hjul -->
+      <section class="wheel-card">
+        <div class="wheel-title">1 klik = 1 tilfældig julefilm</div>
+        <div class="wheel-wrapper">
+          <div class="wheel-container">
+            <canvas id="wheelCanvas" width="320" height="320"></canvas>
+            <div class="pointer"></div>
+          </div>
+          <button id="spinButton" class="spin-button">
+            <span class="icon">🎡</span>
+            <span>Spin hjulet</span>
+          </button>
+          <p class="hint">Hjulet er fair – alle 50 film har samme chance.</p>
+        </div>
+      </section>
+
+      <!-- Højre: info om valgt film -->
+      <section class="info-card">
+        <h2>Valgt julefilm</h2>
+        <p id="currentTitle" class="current-title">Tryk på “Spin hjulet”</p>
+        <p id="currentYear" class="current-year"></p>
+
+        <div>
+          <div class="streaming-label">Kan streames på:</div>
+          <div id="currentStreaming" class="badge-row"></div>
+          <p id="streamingFallback" class="result-note"></p>
+        </div>
+
+        <p class="disclaimer">
+          Streamingdata er samlet manuelt for danske tjenester (DRTV, TV 2 Play,
+          Netflix, Viaplay, Disney+, YouSee TV &amp; Film og discovery+). Udbud
+          ændrer sig løbende, så tjek altid direkte på tjenesterne for at være helt sikker.
+        </p>
+      </section>
+    </div>
+
+    <h2 class="list-heading">Alle 50 film i hjulet</h2>
+    <p class="list-subtitle">
+      Hurtigt overblik over årstal og hvor filmene (typisk) kan streames netop nu.
+    </p>
+
+    <div class="table-wrapper">
+      <table id="movieTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Titel</th>
+            <th>År</th>
+            <th>Streaming (DK)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Fyldes via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <script>
+    // Liste over film (år + hvor de pt. kan streames i DK efter bedste viden, november 2025)
     const movies = [
-      "Home Alone (1990)",
-      "Home Alone 2: Lost in New York (1992)",
-      "The Muppet Christmas Carol (1992)",
-      "The Nightmare Before Christmas (1993)",
-      "The Santa Clause (1994)",
-      "Miracle on 34th Street (1994)",
-      "Jingle All the Way (1996)",
-      "Elf (2003)",
-      "Love Actually (2003)",
-      "The Polar Express (2004)"
-      // … tilføj flere film her …
+      { title: "Home Alone", year: 1990, streaming: ["DRTV", "Disney+"] },
+      { title: "Home Alone 2: Lost in New York", year: 1992, streaming: ["DRTV", "Disney+"] },
+      { title: "The Muppet Christmas Carol", year: 1992, streaming: ["Disney+"] },
+      { title: "The Nightmare Before Christmas", year: 1993, streaming: ["Disney+"] },
+      { title: "Miracle on 34th Street", year: 1994, streaming: ["Disney+"] },
+      { title: "The Santa Clause", year: 1994, streaming: ["Disney+"] },
+      { title: "Jingle All the Way", year: 1996, streaming: ["Disney+"] },
+      { title: "The Preacher's Wife", year: 1996, streaming: [] },
+      { title: "Jack Frost", year: 1998, streaming: [] },
+      { title: "How the Grinch Stole Christmas", year: 2000, streaming: ["Netflix"] },
+      { title: "Love Actually", year: 2003, streaming: ["Netflix", "Viaplay", "YouSee TV & Film"] },
+      { title: "Elf", year: 2003, streaming: ["Netflix", "YouSee TV & Film", "DRTV"] },
+      { title: "Bad Santa", year: 2003, streaming: ["Viaplay"] },
+      { title: "The Polar Express", year: 2004, streaming: ["Netflix", "Viaplay"] },
+      { title: "Christmas with the Kranks", year: 2004, streaming: [] },
+      { title: "The Holiday", year: 2006, streaming: ["Netflix", "Viaplay", "DRTV"] },
+      { title: "Arthur Christmas", year: 2011, streaming: [] },
+      { title: "A Very Harold & Kumar 3D Christmas", year: 2011, streaming: [] },
+      { title: "Rise of the Guardians", year: 2012, streaming: [] },
+      { title: "Frozen", year: 2013, streaming: ["Disney+"] },
+      { title: "The Christmas Chronicles", year: 2018, streaming: ["Netflix"] },
+      { title: "The Christmas Chronicles 2", year: 2020, streaming: ["Netflix"] },
+      { title: "Klaus", year: 2019, streaming: ["Netflix"] },
+      { title: "Jingle Jangle: A Christmas Journey", year: 2020, streaming: ["Netflix"] },
+      { title: "Last Christmas", year: 2019, streaming: ["Netflix", "Disney+", "DRTV"] },
+      { title: "Noelle", year: 2019, streaming: ["Disney+"] },
+      { title: "A Boy Called Christmas", year: 2021, streaming: ["Netflix"] },
+      { title: "Love Hard", year: 2021, streaming: ["Netflix"] },
+      { title: "Single All the Way", year: 2021, streaming: ["Netflix"] },
+      { title: "A Castle for Christmas", year: 2021, streaming: ["Netflix"] },
+      { title: "Christmas with You", year: 2022, streaming: ["Netflix"] },
+      { title: "Spirited", year: 2022, streaming: [] }, // Apple TV+ (ikke blandt de ønskede tjenester)
+      { title: "Violent Night", year: 2022, streaming: [] },
+      { title: "8-Bit Christmas", year: 2021, streaming: [] },
+      { title: "Office Christmas Party", year: 2016, streaming: [] },
+      { title: "The Man Who Invented Christmas", year: 2017, streaming: [] },
+      { title: "The Princess Switch", year: 2018, streaming: ["Netflix"] },
+      { title: "The Princess Switch: Switched Again", year: 2020, streaming: ["Netflix"] },
+      { title: "A Christmas Prince", year: 2017, streaming: ["Netflix"] },
+      { title: "Operation Christmas Drop", year: 2020, streaming: ["Netflix"] },
+      { title: "Holiday in the Wild", year: 2019, streaming: ["Netflix"] },
+      { title: "Holidate", year: 2020, streaming: ["Netflix"] },
+      { title: "Christmas Inheritance", year: 2017, streaming: ["Netflix"] },
+      { title: "Father Christmas Is Back", year: 2021, streaming: ["Netflix"] },
+      { title: "Dengang til jul", year: 2024, streaming: ["Netflix"] },
+      { title: "Så blev det jul igen", year: 2023, streaming: ["Netflix"] },
+      { title: "Familien Jul og nissehotellet", year: 2021, streaming: ["Netflix"] },
+      { title: "Julemandens Datter", year: 2018, streaming: ["Netflix"] },
+      { title: "En uventet jul", year: 2015, streaming: ["Viaplay"] },
+      { title: "Snedker Andersen og Julenissen - den lille by som glemte at det var jul", year: 2019, streaming: ["Viaplay"] }
     ];
 
-    document.getElementById("spinButton").addEventListener("click", () => {
-      const idx = Math.floor(Math.random() * movies.length);
-      const chosen = movies[idx];
-      document.getElementById("result").textContent = "🎬 Du har fået: " + chosen;
+    const spinButton = document.getElementById("spinButton");
+    const wheelCanvas = document.getElementById("wheelCanvas");
+    const currentTitleEl = document.getElementById("currentTitle");
+    const currentYearEl = document.getElementById("currentYear");
+    const currentStreamingEl = document.getElementById("currentStreaming");
+    const streamingFallbackEl = document.getElementById("streamingFallback");
+    const movieTableBody = document.querySelector("#movieTable tbody");
+
+    let isSpinning = false;
+
+    function drawWheel() {
+      const ctx = wheelCanvas.getContext("2d");
+      const size = wheelCanvas.width;
+      const center = size / 2;
+      const radius = center - 8;
+      const sliceAngle = (2 * Math.PI) / movies.length;
+
+      ctx.clearRect(0, 0, size, size);
+
+      for (let i = 0; i < movies.length; i++) {
+        const startAngle = i * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+        const hue = (i * 360) / movies.length;
+        ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
+        ctx.fill();
+      }
+
+      // Indre cirkel for at bløde farverne lidt
+      ctx.beginPath();
+      ctx.arc(center, center, radius * 0.45, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(15,23,42,0.96)";
+      ctx.fill();
+    }
+
+    function renderTable() {
+      movies.forEach((movie, index) => {
+        const tr = document.createElement("tr");
+
+        const tdIndex = document.createElement("td");
+        tdIndex.textContent = index + 1;
+        tdIndex.className = "index-cell";
+
+        const tdTitle = document.createElement("td");
+        tdTitle.textContent = movie.title;
+
+        const tdYear = document.createElement("td");
+        tdYear.textContent = movie.year;
+        tdYear.className = "year-cell";
+
+        const tdStream = document.createElement("td");
+        tdStream.className = "stream-cell";
+        if (movie.streaming && movie.streaming.length) {
+          movie.streaming.forEach((svc) => {
+            const span = document.createElement("span");
+            span.className = "badge";
+            span.dataset.service = svc;
+            span.textContent = svc;
+            tdStream.appendChild(span);
+          });
+        } else {
+          tdStream.textContent = "—";
+        }
+
+        tr.appendChild(tdIndex);
+        tr.appendChild(tdTitle);
+        tr.appendChild(tdYear);
+        tr.appendChild(tdStream);
+        movieTableBody.appendChild(tr);
+      });
+    }
+
+    function showResult(movie) {
+      currentTitleEl.textContent = movie.title;
+      currentYearEl.textContent = movie.year ? `(${movie.year})` : "";
+
+      // Streaming-badges for valgt film
+      currentStreamingEl.innerHTML = "";
+      streamingFallbackEl.textContent = "";
+
+      if (movie.streaming && movie.streaming.length) {
+        movie.streaming.forEach((svc) => {
+          const span = document.createElement("span");
+          span.className = "badge";
+          span.dataset.service = svc;
+          span.textContent = svc;
+          currentStreamingEl.appendChild(span);
+        });
+      } else {
+        streamingFallbackEl.textContent =
+          "Ikke registreret på DRTV, TV 2 Play, Netflix, Viaplay, Disney+, YouSee TV & Film eller discovery+ i denne oversigt – prøv evt. andre tjenester eller køb/lej.";
+      }
+    }
+
+    function spinWheel() {
+      if (isSpinning) return;
+      isSpinning = true;
+      spinButton.disabled = true;
+
+      const slices = movies.length;
+      const segmentAngle = 360 / slices;
+
+      // Vælg tilfældig film
+      const index = Math.floor(Math.random() * slices);
+
+      // Center-vinkel for den valgte slice
+      const centerAngle = index * segmentAngle + segmentAngle / 2;
+
+      // Ekstra omgange for at det ser dramatisk ud
+      const extraSpins = 5 + Math.floor(Math.random() * 3); // 5–7 omgange
+      const finalRotation = extraSpins * 360 + (360 - centerAngle);
+
+      wheelCanvas.style.transition = "transform 4s cubic-bezier(0.22, 0.61, 0.36, 1)";
+      wheelCanvas.style.transform = `rotate(${finalRotation}deg)`;
+
+      setTimeout(() => {
+        const movie = movies[index];
+        showResult(movie);
+        isSpinning = false;
+        spinButton.disabled = false;
+      }, 4000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      drawWheel();
+      renderTable();
+      // Vælg en tilfældig startfilm til visning (uden spin-animation)
+      const initialIndex = Math.floor(Math.random() * movies.length);
+      showResult(movies[initialIndex]);
     });
+
+    spinButton.addEventListener("click", spinWheel);
   </script>
 </body>
 </html>
