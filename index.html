@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <title>Julefilm Lykkehjul</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 50px; }
+    #wheel { width: 300px; height: 300px; border: 5px solid #333; border-radius: 50%; margin: 0 auto; position: relative; }
+    #spinButton { margin-top: 20px; padding: 10px 20px; font-size: 16px; }
+    #result { margin-top: 30px; font-size: 24px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Julefilm Lykkehjul</h1>
+  <div id="wheel"> 🎄 </div>
+  <button id="spinButton">Spin hjulet!</button>
+  <div id="result"></div>
+
+  <script>
+    const movies = [
+      "Home Alone (1990)",
+      "Home Alone 2: Lost in New York (1992)",
+      "The Muppet Christmas Carol (1992)",
+      "The Nightmare Before Christmas (1993)",
+      "The Santa Clause (1994)",
+      "Miracle on 34th Street (1994)",
+      "Jingle All the Way (1996)",
+      "Elf (2003)",
+      "Love Actually (2003)",
+      "The Polar Express (2004)"
+      // … tilføj flere film her …
+    ];
+
+    document.getElementById("spinButton").addEventListener("click", () => {
+      const idx = Math.floor(Math.random() * movies.length);
+      const chosen = movies[idx];
+      document.getElementById("result").textContent = "🎬 Du har fået: " + chosen;
+    });
+  </script>
+</body>
+</html>
