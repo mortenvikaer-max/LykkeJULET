@@ -293,9 +293,16 @@
     }
 
     .current-year {
-      margin: 0.3rem 0 0.8rem;
+      margin: 0.3rem 0 0.4rem;
       color: var(--muted);
       font-size: 0.95rem;
+    }
+
+    .current-description {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0.3rem 0 0.9rem;
+      color: #e5e7eb;
     }
 
     .streaming-label {
@@ -494,9 +501,24 @@
       display: block;
     }
 
+    .bottom-decor {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 0;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+      white-space: nowrap;
+    }
+
     @media (max-width: 900px) {
       .decor-side {
         display: none;
+      }
+      .bottom-decor {
+        font-size: 1.6rem;
       }
     }
   </style>
@@ -505,16 +527,22 @@
   <!-- Sidelandskab / pynt -->
   <div class="decor-side left">
     <span>🎄</span>
+    <span>🎅</span>
     <span>⛄</span>
     <span>🎄</span>
   </div>
   <div class="decor-side right">
     <span>⛄</span>
     <span>🎄</span>
+    <span>🎅</span>
     <span>⛄</span>
   </div>
 
   <div class="snow-hills"></div>
+
+  <div class="bottom-decor">
+    🎄🎅🎄🎅🎄🎅🎄🎅🎄🎅🎄🎅
+  </div>
 
   <div class="container">
     <h1>LYKKEJUL</h1>
@@ -551,6 +579,7 @@
           </h2>
           <p id="currentTitle" class="current-title">Tryk på “Spin hjulet”</p>
           <p id="currentYear" class="current-year"></p>
+          <p id="currentDescription" class="current-description"></p>
 
           <div>
             <div class="streaming-label">Kan (typisk) streames på:</div>
@@ -592,64 +621,315 @@
   </div>
 
   <script>
-    // 50 julefilm fra 1990 og frem + streaming (som i den forrige løsning)
+    // 50 julefilm fra 1990 og frem + streaming + korte beskrivelser
     const movies = [
-      { title: "Home Alone", year: 1990, streaming: ["DRTV", "Disney+"] },
-      { title: "Home Alone 2: Lost in New York", year: 1992, streaming: ["DRTV", "Disney+"] },
-      { title: "The Muppet Christmas Carol", year: 1992, streaming: ["Disney+"] },
-      { title: "The Nightmare Before Christmas", year: 1993, streaming: ["Disney+"] },
-      { title: "Miracle on 34th Street", year: 1994, streaming: ["Disney+"] },
-      { title: "The Santa Clause", year: 1994, streaming: ["Disney+"] },
-      { title: "Jingle All the Way", year: 1996, streaming: ["Disney+"] },
-      { title: "The Preacher's Wife", year: 1996, streaming: [] },
-      { title: "Jack Frost", year: 1998, streaming: [] },
-      { title: "How the Grinch Stole Christmas", year: 2000, streaming: ["Netflix"] },
-      { title: "Love Actually", year: 2003, streaming: ["Netflix", "Viaplay", "YouSee TV & Film"] },
-      { title: "Elf", year: 2003, streaming: ["Netflix", "YouSee TV & Film", "DRTV"] },
-      { title: "Bad Santa", year: 2003, streaming: ["Viaplay"] },
-      { title: "The Polar Express", year: 2004, streaming: ["Netflix", "Viaplay"] },
-      { title: "Christmas with the Kranks", year: 2004, streaming: [] },
-      { title: "The Holiday", year: 2006, streaming: ["Netflix", "Viaplay", "DRTV"] },
-      { title: "Arthur Christmas", year: 2011, streaming: [] },
-      { title: "A Very Harold & Kumar 3D Christmas", year: 2011, streaming: [] },
-      { title: "Rise of the Guardians", year: 2012, streaming: [] },
-      { title: "Frozen", year: 2013, streaming: ["Disney+"] },
-      { title: "The Christmas Chronicles", year: 2018, streaming: ["Netflix"] },
-      { title: "The Christmas Chronicles 2", year: 2020, streaming: ["Netflix"] },
-      { title: "Klaus", year: 2019, streaming: ["Netflix"] },
-      { title: "Jingle Jangle: A Christmas Journey", year: 2020, streaming: ["Netflix"] },
-      { title: "Last Christmas", year: 2019, streaming: ["Netflix", "Disney+", "DRTV"] },
-      { title: "Noelle", year: 2019, streaming: ["Disney+"] },
-      { title: "A Boy Called Christmas", year: 2021, streaming: ["Netflix"] },
-      { title: "Love Hard", year: 2021, streaming: ["Netflix"] },
-      { title: "Single All the Way", year: 2021, streaming: ["Netflix"] },
-      { title: "A Castle for Christmas", year: 2021, streaming: ["Netflix"] },
-      { title: "Christmas with You", year: 2022, streaming: ["Netflix"] },
-      { title: "Spirited", year: 2022, streaming: [] },
-      { title: "Violent Night", year: 2022, streaming: [] },
-      { title: "8-Bit Christmas", year: 2021, streaming: [] },
-      { title: "Office Christmas Party", year: 2016, streaming: [] },
-      { title: "The Man Who Invented Christmas", year: 2017, streaming: [] },
-      { title: "The Princess Switch", year: 2018, streaming: ["Netflix"] },
-      { title: "The Princess Switch: Switched Again", year: 2020, streaming: ["Netflix"] },
-      { title: "A Christmas Prince", year: 2017, streaming: ["Netflix"] },
-      { title: "Operation Christmas Drop", year: 2020, streaming: ["Netflix"] },
-      { title: "Holiday in the Wild", year: 2019, streaming: ["Netflix"] },
-      { title: "Holidate", year: 2020, streaming: ["Netflix"] },
-      { title: "Christmas Inheritance", year: 2017, streaming: ["Netflix"] },
-      { title: "Father Christmas Is Back", year: 2021, streaming: ["Netflix"] },
-      { title: "Dengang til jul", year: 2024, streaming: ["Netflix"] },
-      { title: "Så blev det jul igen", year: 2023, streaming: ["Netflix"] },
-      { title: "Familien Jul og nissehotellet", year: 2021, streaming: ["Netflix"] },
-      { title: "Julemandens Datter", year: 2018, streaming: ["Netflix"] },
-      { title: "En uventet jul", year: 2015, streaming: ["Viaplay"] },
-      { title: "Snedker Andersen og Julenissen - den lille by som glemte at det var jul", year: 2019, streaming: ["Viaplay"] }
+      {
+        title: "Home Alone",
+        year: 1990,
+        streaming: ["DRTV", "Disney+"],
+        description: "Kevin bliver glemt derhjemme, da familien tager på juleferie. Han må beskytte huset mod to kluntede indbrudstyve med kreative fælder og masser af julekaos."
+      },
+      {
+        title: "Home Alone 2: Lost in New York",
+        year: 1992,
+        streaming: ["DRTV", "Disney+"],
+        description: "Kevin ender alene i New York med fars kreditkort. De velkendte tyve er tilbage, og Kevin sætter endnu en gang sin opfindsomhed i spil midt i julelysene på Manhattan."
+      },
+      {
+        title: "The Muppet Christmas Carol",
+        year: 1992,
+        streaming: ["Disney+"],
+        description: "Muppets fortæller Dickens' klassiske julesaga om den gnavne Scrooge. Kermit, Gonzo og alle de andre hjælper med sang, humor og julehygge. En farverig familiefortolkning."
+      },
+      {
+        title: "The Nightmare Before Christmas",
+        year: 1993,
+        streaming: ["Disney+"],
+        description: "Jack Skellington fra Halloween Town opdager julen og beslutter sig for at overtage højtiden. Resultatet bliver en mørkt charmerende blanding af uhyggeligt og hyggeligt."
+      },
+      {
+        title: "Miracle on 34th Street",
+        year: 1994,
+        streaming: ["Disney+"],
+        description: "En mand, der hævder at være den rigtige julemand, bliver ansat i et stormagasin. En lille pige og hendes mor må beslutte, om de tør tro på mirakler og julens magi."
+      },
+      {
+        title: "The Santa Clause",
+        year: 1994,
+        streaming: ["Disney+"],
+        description: "En fraskilt far kommer ved et uheld til at overtage julemandens job. Pludselig får han skæg, rød dragt og ansvar for juleaftenen. Familiekomedie med masser af nissekaos."
+      },
+      {
+        title: "Jingle All the Way",
+        year: 1996,
+        streaming: ["Disney+"],
+        description: "En stresset far jagter årets mest populære julelegetøj til sin søn. Hele byen gør det samme, og jagten udvikler sig til et vildt kapløb fyldt med komik og juleræs."
+      },
+      {
+        title: "The Preacher's Wife",
+        year: 1996,
+        streaming: [],
+        description: "En præst og hans familie er pressede i julen, indtil en engel dukker op for at hjælpe. Musik, varme og kærlighed blandes i en hjertevarm julehistorie."
+      },
+      {
+        title: "Jack Frost",
+        year: 1998,
+        streaming: [],
+        description: "En far, der dør i en ulykke, vender tilbage som snemand og får en ny chance for at være der for sin søn. En fantasifuld og rørende vintersaga."
+      },
+      {
+        title: "How the Grinch Stole Christmas",
+        year: 2000,
+        streaming: ["Netflix"],
+        description: "Den grønne og sure Grinch hader jul og vil stjæle den fra Whoville. En lille pige får dog øje på hjertet bag hans surhed. Farverig og komisk juleklassiker."
+      },
+      {
+        title: "Love Actually",
+        year: 2003,
+        streaming: ["Netflix", "Viaplay", "YouSee TV & Film"],
+        description: "Flere forskellige kærlighedshistorier flettes sammen i ugerne op til jul. Politikere, popstjerner og helt almindelige mennesker oplever både romantik og hjertesorg."
+      },
+      {
+        title: "Elf",
+        year: 2003,
+        streaming: ["Netflix", "YouSee TV & Film", "DRTV"],
+        description: "Buddy, der er vokset op blandt nisser på Nordpolen, opdager, at han faktisk er menneske. Han rejser til New York for at finde sin familie og sprede juleglæde."
+      },
+      {
+        title: "Bad Santa",
+        year: 2003,
+        streaming: ["Viaplay"],
+        description: "En småkriminel udgiver sig for at være julemand i et storcenter for at stjæle. Julehumøret er sort, råt og grovkornet, men der er stadig plads til lidt varme."
+      },
+      {
+        title: "The Polar Express",
+        year: 2004,
+        streaming: ["Netflix", "Viaplay"],
+        description: "En dreng stiger ombord på et magisk tog til Nordpolen juleaften. Rejsen bliver en fortælling om tro, venskab og julens vidunderlige mysterier."
+      },
+      {
+        title: "Christmas with the Kranks",
+        year: 2004,
+        streaming: [],
+        description: "Et ægtepar vil skippe julen og bruge pengene på en rejse. Naboerne bliver forargede, og da datteren pludselig kommer hjem, må de improvisere en hel jul på rekordtid."
+      },
+      {
+        title: "The Holiday",
+        year: 2006,
+        streaming: ["Netflix", "Viaplay", "DRTV"],
+        description: "To kvinder fra hver sin side af Atlanten bytter hus hen over julen. Nye omgivelser giver nye møder, kærlighed og chancen for at starte forfra."
+      },
+      {
+        title: "Arthur Christmas",
+        year: 2011,
+        streaming: [],
+        description: "Julemandens lidt klodsede søn Arthur opdager, at et barn er blevet glemt juleaften. Han kaster sig ud i et hektisk og hjertevarmt kapløb for at redde julen for den ene."
+      },
+      {
+        title: "A Very Harold & Kumar 3D Christmas",
+        year: 2011,
+        streaming: [],
+        description: "Harold og Kumar roder sig ud i vanvittige juleeventyr, da et dyrebart juletræ går op i røg. En grov, skør og højrøstet julekomedie."
+      },
+      {
+        title: "Rise of the Guardians",
+        year: 2012,
+        streaming: [],
+        description: "Julemanden, Påskeharen og andre mytiske figurer må gå sammen mod en mørk trussel. En eventyrlig animationsfilm, hvor troen på fantasien er nøglen."
+      },
+      {
+        title: "Frozen",
+        year: 2013,
+        streaming: ["Disney+"],
+        description: "Søstrene Elsa og Anna kæmper med magiske kræfter og en vinter, der truer riget. Ikke en klassisk julefilm, men fyldt med sne, musik og familiehygge."
+      },
+      {
+        title: "The Christmas Chronicles",
+        year: 2018,
+        streaming: ["Netflix"],
+        description: "To søskende kommer ved et uheld til at vælter julemandens slæde. Sammen med julemanden må de reparere natten og redde juleaftenen."
+      },
+      {
+        title: "The Christmas Chronicles 2",
+        year: 2020,
+        streaming: ["Netflix"],
+        description: "Et nyt eventyr med julemanden og børnene. Denne gang truer en ny fjende selve Nordpolen, og julen må endnu engang reddes med mod og magi."
+      },
+      {
+        title: "Klaus",
+        year: 2019,
+        streaming: ["Netflix"],
+        description: "En egoistisk postmester sendes til en kold ø, hvor ingen sender breve. Her møder han den enspændige legetøjsmager Klaus, og en ny juletradition opstår."
+      },
+      {
+        title: "Jingle Jangle: A Christmas Journey",
+        year: 2020,
+        streaming: ["Netflix"],
+        description: "En tidligere legetøjsopfinder har mistet troen på sig selv. Hans barnebarn og et magisk legetøj giver ham ny håb i en farverig og musikalsk julesaga."
+      },
+      {
+        title: "Last Christmas",
+        year: 2019,
+        streaming: ["Netflix", "Disney+", "DRTV"],
+        description: "Kate arbejder i en julebutik året rundt og roder rundt i livet. Et mystisk møde med Tom får hende til at se på kærlighed, familie og jul på en ny måde."
+      },
+      {
+        title: "Noelle",
+        year: 2019,
+        streaming: ["Disney+"],
+        description: "Julemandens datter Noelle må tage affære, da hendes bror ikke kan leve op til rollen. Hun begiver sig ud på en rejse for at finde ham og redde julen."
+      },
+      {
+        title: "A Boy Called Christmas",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "Drengen Nikolas rejser mod nord for at finde sin far og den magiske by Elfhelm. Undervejs opdager han, hvordan legenden om julemanden kan begynde."
+      },
+      {
+        title: "Love Hard",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "En journalist flyver tværs over landet for at overraske sin online-forelskelse til jul. Hun opdager, at virkeligheden ikke helt matcher profilen, hun faldt for."
+      },
+      {
+        title: "Single All the Way",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "Peter tager sin bedste ven med hjem til jul og lader som om de er kærester. Familien får andre planer og prøver at blande sig i kærlighedslivet."
+      },
+      {
+        title: "A Castle for Christmas",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "En succesfuld forfatter gemmer sig i Skotland efter en skandale. Hun forelsker sig i et slot og støder sammen med den gnavne hertug, der ejer det."
+      },
+      {
+        title: "Christmas with You",
+        year: 2022,
+        streaming: ["Netflix"],
+        description: "En popstjerne rejser til en lille by for at opfylde en fans juleønske. Her finder hun både ny inspiration og uventet romantik."
+      },
+      {
+        title: "Spirited",
+        year: 2022,
+        streaming: [],
+        description: "En moderne musicalfortolkning af Dickens' julespøgelseshistorie. Et selvoptaget mediemenneske får besøg af flere ånder, der vil ændre hans livssyn."
+      },
+      {
+        title: "Violent Night",
+        year: 2022,
+        streaming: [],
+        description: "En mere rå julefilm, hvor en hårdt presset julemand må tage kampen op mod hårdkogte skurke. Blodig, men stadig pakket ind i julelys og sort humor."
+      },
+      {
+        title: "8-Bit Christmas",
+        year: 2021,
+        streaming: [],
+        description: "En far fortæller datteren om sin barndoms jagt på den ultimative spillekonsol. En nostalgisk, vinterkold tur tilbage til 80'ernes julefeber."
+      },
+      {
+        title: "Office Christmas Party",
+        year: 2016,
+        streaming: [],
+        description: "En virksomhed forsøger at redde en vigtig kunde ved at holde en vild julefrokost. Festen løber helt af sporet med grov humor og kaotiske situationer."
+      },
+      {
+        title: "The Man Who Invented Christmas",
+        year: 2017,
+        streaming: [],
+        description: "Charles Dickens kæmper med at skrive en julehistorie, der kan redde hans økonomi. Figuren Scrooge og de andre karakterer dukker nærmest op foran ham."
+      },
+      {
+        title: "The Princess Switch",
+        year: 2018,
+        streaming: ["Netflix"],
+        description: "En bager fra Chicago og en europæisk hertuginde opdager, at de ligner hinanden som to dråber vand. De bytter liv op til jul med sød romantik til følge."
+      },
+      {
+        title: "The Princess Switch: Switched Again",
+        year: 2020,
+        streaming: ["Netflix"],
+        description: "Kaosset fortsætter, da de velkendte dobbeltgængere får endnu mere at jonglere med. Romantik, slotte og julepynt i stor stil."
+      },
+      {
+        title: "A Christmas Prince",
+        year: 2017,
+        streaming: ["Netflix"],
+        description: "En journalist rejser til et lille kongerige for at dække en kronprins. Hun ender med både at afsløre hemmeligheder og få følelser i spil."
+      },
+      {
+        title: "Operation Christmas Drop",
+        year: 2020,
+        streaming: ["Netflix"],
+        description: "En ambitiøs embedsmand sendes til en fjerntliggende base for at vurdere et julehjælpeprojekt. Mødet med soldaterne og traditionen ændrer hendes syn på julen."
+      },
+      {
+        title: "Holiday in the Wild",
+        year: 2019,
+        streaming: ["Netflix"],
+        description: "Efter et brud tager en kvinde alene til Afrika. Julen nærmer sig, og hun finder nyt formål blandt elefanter, natur og en ny romance."
+      },
+      {
+        title: "Holidate",
+        year: 2020,
+        streaming: ["Netflix"],
+        description: "To singler aftaler at være hinandens faste date til højtider for at undgå spørgsmål fra familien. Aftalen bliver mere kompliceret, når følelserne blander sig."
+      },
+      {
+        title: "Christmas Inheritance",
+        year: 2017,
+        streaming: ["Netflix"],
+        description: "En forkælet arving må levere et brev i en lille by for at bevise, at hun fortjener familievirksomheden. Her lærer hun om fællesskab og ægte juleånd."
+      },
+      {
+        title: "Father Christmas Is Back",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "En stor familie samles i et engelsk herresæde til jul. Gamle konflikter og hemmeligheder dukker op, da den fraværende far pludselig står i døren."
+      },
+      {
+        title: "Dengang til jul",
+        year: 2024,
+        streaming: ["Netflix"],
+        description: "En dansk julefortælling, hvor fortid og nutid flettes sammen omkring decemberminder. Familie, traditioner og savn spiller hovedrollerne."
+      },
+      {
+        title: "Så blev det jul igen",
+        year: 2023,
+        streaming: ["Netflix"],
+        description: "Dansk julehygge med fokus på familiekaos og gensyn med velkendte figurer. Julen går naturligvis ikke helt som planlagt."
+      },
+      {
+        title: "Familien Jul og nissehotellet",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "En dansk børne- og familiehistorie med nisser, forviklinger og julemagiske øjeblikke. Børnene må hjælpe til, for at alt ender godt."
+      },
+      {
+        title: "Julemandens Datter",
+        year: 2018,
+        streaming: ["Netflix"],
+        description: "Lucia er julemandens datter og vil bevise, at hun også har magiske evner. Hun rejser til menneskenes verden og oplever både venskab og fare."
+      },
+      {
+        title: "En uventet jul",
+        year: 2015,
+        streaming: ["Viaplay"],
+        description: "En norsk julefilm, hvor en mand lader som om han stadig er sammen med sin eks for at undgå at ødelægge familiens juleplaner. Følelserne følger trop."
+      },
+      {
+        title: "Snedker Andersen og Julenissen - den lille by som glemte at det var jul",
+        year: 2019,
+        streaming: ["Viaplay"],
+        description: "Snedker Andersen og julenissen vender tilbage i en lille by, der er ved at glemme julen. Sammen mindes de, hvad højtiden egentlig handler om."
+      }
     ];
 
     const spinButton = document.getElementById("spinButton");
     const wheelCanvas = document.getElementById("wheelCanvas");
     const currentTitleEl = document.getElementById("currentTitle");
     const currentYearEl = document.getElementById("currentYear");
+    const currentDescriptionEl = document.getElementById("currentDescription");
     const currentStreamingEl = document.getElementById("currentStreaming");
     const streamingFallbackEl = document.getElementById("streamingFallback");
     const movieTableBody = document.querySelector("#movieTable tbody");
@@ -725,6 +1005,7 @@
     function showResult(movie) {
       currentTitleEl.textContent = movie.title;
       currentYearEl.textContent = movie.year ? `(${movie.year})` : "";
+      currentDescriptionEl.textContent = movie.description || "";
 
       currentStreamingEl.innerHTML = "";
       streamingFallbackEl.textContent = "";
@@ -775,14 +1056,14 @@
 
     // Lyskæde-lys
     function createLights() {
-      const count = 20;
+      const count = 32; // flere lys!
       for (let i = 0; i < count; i++) {
         const light = document.createElement("span");
         light.className = "light";
         const left = (i / (count - 1)) * 100;
         light.style.left = left + "%";
 
-        const colors = ["#f97373", "#fbbf24", "#4ade80", "#38bdf8", "#f9a8d4"];
+        const colors = ["#f97373", "#fbbf24", "#4ade80", "#38bdf8", "#f9a8d4", "#facc15"];
         const color = colors[i % colors.length];
         light.style.color = color;
 
@@ -795,7 +1076,7 @@
 
     // Faldende sne
     function createSnowflakes() {
-      const count = 90;
+      const count = 140; // endnu mere sne!
       for (let i = 0; i < count; i++) {
         const snow = document.createElement("div");
         snow.className = "snowflake";
