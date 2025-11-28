@@ -355,18 +355,14 @@
       border-color: #a855f7;
     }
 
+    .badge[data-service="HBO Max"] {
+      border-color: #6366f1;
+    }
+
     .result-note {
       font-size: 0.85rem;
       color: var(--muted);
       margin-top: 0.4rem;
-    }
-
-    .disclaimer {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 0.9rem;
-      border-top: 1px dashed rgba(248, 250, 252, 0.35);
-      padding-top: 0.5rem;
     }
 
     /* Liste-sektion */
@@ -521,6 +517,41 @@
         font-size: 1.6rem;
       }
     }
+
+    /* Overraskelses-overlay */
+    .surprise-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
+      z-index: 25;
+    }
+
+    .surprise-overlay.visible {
+      opacity: 1;
+    }
+
+    .surprise-icon {
+      position: absolute;
+      font-size: 2.2rem;
+      animation: surprise-pop 0.8s ease-out forwards;
+    }
+
+    @keyframes surprise-pop {
+      0% {
+        transform: translate(-50%, 10px) scale(0.2);
+        opacity: 0;
+      }
+      40% {
+        transform: translate(-50%, -20px) scale(1.1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, 40px) scale(0.9);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -539,6 +570,9 @@
   </div>
 
   <div class="snow-hills"></div>
+
+  <!-- Overraskelses-overlay -->
+  <div id="surpriseOverlay" class="surprise-overlay"></div>
 
   <div class="bottom-decor">
     🎄🎅🎄🎅🎄🎅🎄🎅🎄🎅🎄🎅
@@ -563,7 +597,7 @@
             </div>
             <button id="spinButton" class="spin-button">
               <span class="icon">🎡</span>
-              <span>Spin hjulet</span>
+              <span>Spin lykkejulet</span>
             </button>
             <p class="side-hint">1 spin = 1 helt tilfældig julefilm. Ho ho ho! 🎅</p>
           </div>
@@ -577,21 +611,15 @@
             <span class="emoji">🎬</span>
             <span>Valgt julefilm</span>
           </h2>
-          <p id="currentTitle" class="current-title">Tryk på “Spin hjulet”</p>
+          <p id="currentTitle" class="current-title">Tryk på “Spin lykkejulet”</p>
           <p id="currentYear" class="current-year"></p>
           <p id="currentDescription" class="current-description"></p>
 
           <div>
-            <div class="streaming-label">Kan (typisk) streames på:</div>
+            <div class="streaming-label">Kan (MÅSKE) streames på:</div>
             <div id="currentStreaming" class="badge-row"></div>
             <p id="streamingFallback" class="result-note"></p>
           </div>
-
-          <p class="disclaimer">
-            Streamingdata er baseret på danske kataloger (DRTV, TV 2 Play,
-            Netflix, Viaplay, Disney+, YouSee TV &amp; Film og discovery+).
-            Udbud ændrer sig løbende, så tjek altid direkte på tjenesterne for at være helt sikker.
-          </p>
         </div>
       </section>
     </div>
@@ -600,7 +628,7 @@
       <span>📜</span> Alle 50 film i hjulet
     </h2>
     <p class="list-subtitle">
-      Med årstal og hvilke tjenester de ofte ligger på i Danmark.
+      Med årstal og hvilke tjenester de ofte ligger på.
     </p>
 
     <div class="table-wrapper">
@@ -610,7 +638,7 @@
             <th>#</th>
             <th>Titel</th>
             <th>År</th>
-            <th>Streaming (DK)</th>
+            <th>Streaming</th>
           </tr>
         </thead>
         <tbody>
@@ -666,15 +694,9 @@
         description: "En stresset far jagter årets mest populære julelegetøj til sin søn. Hele byen gør det samme, og jagten udvikler sig til et vildt kapløb fyldt med komik og juleræs."
       },
       {
-        title: "The Preacher's Wife",
-        year: 1996,
-        streaming: [],
-        description: "En præst og hans familie er pressede i julen, indtil en engel dukker op for at hjælpe. Musik, varme og kærlighed blandes i en hjertevarm julehistorie."
-      },
-      {
         title: "Jack Frost",
         year: 1998,
-        streaming: [],
+        streaming: ["Viaplay"],
         description: "En far, der dør i en ulykke, vender tilbage som snemand og får en ny chance for at være der for sin søn. En fantasifuld og rørende vintersaga."
       },
       {
@@ -710,7 +732,7 @@
       {
         title: "Christmas with the Kranks",
         year: 2004,
-        streaming: [],
+        streaming: ["Netflix"],
         description: "Et ægtepar vil skippe julen og bruge pengene på en rejse. Naboerne bliver forargede, og da datteren pludselig kommer hjem, må de improvisere en hel jul på rekordtid."
       },
       {
@@ -722,20 +744,14 @@
       {
         title: "Arthur Christmas",
         year: 2011,
-        streaming: [],
+        streaming: ["Netflix"],
         description: "Julemandens lidt klodsede søn Arthur opdager, at et barn er blevet glemt juleaften. Han kaster sig ud i et hektisk og hjertevarmt kapløb for at redde julen for den ene."
       },
       {
         title: "A Very Harold & Kumar 3D Christmas",
         year: 2011,
-        streaming: [],
-        description: "Harold og Kumar roder sig ud i vanvittige juleeventyr, da et dyrebart juletræ går op i røg. En grov, skør og højrøstet julekomedie."
-      },
-      {
-        title: "Rise of the Guardians",
-        year: 2012,
-        streaming: [],
-        description: "Julemanden, Påskeharen og andre mytiske figurer må gå sammen mod en mørk trussel. En eventyrlig animationsfilm, hvor troen på fantasien er nøglen."
+        streaming: ["HBO Max"],
+        description: "Harold og Kumar roder sig ud i vanvittige juleeventyr, da et dyrebart juletræ går op i røg. En grov, skør og højrøstet julekomedie for de voksne."
       },
       {
         title: "Frozen",
@@ -765,7 +781,7 @@
         title: "Jingle Jangle: A Christmas Journey",
         year: 2020,
         streaming: ["Netflix"],
-        description: "En tidligere legetøjsopfinder har mistet troen på sig selv. Hans barnebarn og et magisk legetøj giver ham ny håb i en farverig og musikalsk julesaga."
+        description: "En tidligere legetøjsopfinder har mistet troen på sig selv. Hans barnebarn og et magisk legetøj giver ham nyt håb i en farverig og musikalsk julesaga."
       },
       {
         title: "Last Christmas",
@@ -810,34 +826,16 @@
         description: "En popstjerne rejser til en lille by for at opfylde en fans juleønske. Her finder hun både ny inspiration og uventet romantik."
       },
       {
-        title: "Spirited",
-        year: 2022,
-        streaming: [],
-        description: "En moderne musicalfortolkning af Dickens' julespøgelseshistorie. Et selvoptaget mediemenneske får besøg af flere ånder, der vil ændre hans livssyn."
-      },
-      {
-        title: "Violent Night",
-        year: 2022,
-        streaming: [],
-        description: "En mere rå julefilm, hvor en hårdt presset julemand må tage kampen op mod hårdkogte skurke. Blodig, men stadig pakket ind i julelys og sort humor."
-      },
-      {
         title: "8-Bit Christmas",
         year: 2021,
-        streaming: [],
-        description: "En far fortæller datteren om sin barndoms jagt på den ultimative spillekonsol. En nostalgisk, vinterkold tur tilbage til 80'ernes julefeber."
+        streaming: ["HBO Max"],
+        description: "En far fortæller datteren om sin barndoms jagt på den ultimative spillekonsol. En nostalgisk og humoristisk tur tilbage til 80'ernes julefeber."
       },
       {
         title: "Office Christmas Party",
         year: 2016,
-        streaming: [],
+        streaming: ["Viaplay", "TV 2 Play"],
         description: "En virksomhed forsøger at redde en vigtig kunde ved at holde en vild julefrokost. Festen løber helt af sporet med grov humor og kaotiske situationer."
-      },
-      {
-        title: "The Man Who Invented Christmas",
-        year: 2017,
-        streaming: [],
-        description: "Charles Dickens kæmper med at skrive en julehistorie, der kan redde hans økonomi. Figuren Scrooge og de andre karakterer dukker nærmest op foran ham."
       },
       {
         title: "The Princess Switch",
@@ -852,10 +850,28 @@
         description: "Kaosset fortsætter, da de velkendte dobbeltgængere får endnu mere at jonglere med. Romantik, slotte og julepynt i stor stil."
       },
       {
+        title: "The Princess Switch 3: Romancing the Star",
+        year: 2021,
+        streaming: ["Netflix"],
+        description: "En uvurderlig juvel forsvinder, og de tre lookalikes må endnu en gang samarbejde. Jul, heist og romantik blandes i en overdådig Netflix-julefilm."
+      },
+      {
         title: "A Christmas Prince",
         year: 2017,
         streaming: ["Netflix"],
         description: "En journalist rejser til et lille kongerige for at dække en kronprins. Hun ender med både at afsløre hemmeligheder og få følelser i spil."
+      },
+      {
+        title: "A Christmas Prince: The Royal Wedding",
+        year: 2018,
+        streaming: ["Netflix"],
+        description: "Brylluppet nærmer sig for Amber og Richard, men pludselig opstår politiske problemer i kongeriget. Kærlighedsliv og kongepligter clasher op til jul."
+      },
+      {
+        title: "A Christmas Prince: The Royal Baby",
+        year: 2019,
+        streaming: ["Netflix"],
+        description: "Amber og Richard venter barn, men en gammel traktat og et forsvundet relikvie truer julefreden. Mysterium og kongelig hygge i sneklædt setting."
       },
       {
         title: "Operation Christmas Drop",
@@ -886,6 +902,18 @@
         year: 2021,
         streaming: ["Netflix"],
         description: "En stor familie samles i et engelsk herresæde til jul. Gamle konflikter og hemmeligheder dukker op, da den fraværende far pludselig står i døren."
+      },
+      {
+        title: "The Noel Diary",
+        year: 2022,
+        streaming: ["Netflix"],
+        description: "En succesfuld forfatter vender hjem for at rydde op i sin mors dødsbo. Et gammelt julebrev sender ham ud på en rejse gennem fortidens hemmeligheder."
+      },
+      {
+        title: "Let It Snow",
+        year: 2019,
+        streaming: ["Netflix"],
+        description: "En snestorm rammer en lille by juleaften og forbinder flere teenagere. Venskab, crushes og kaotiske fester flettes sammen over én magisk nat."
       },
       {
         title: "Dengang til jul",
@@ -934,6 +962,7 @@
     const streamingFallbackEl = document.getElementById("streamingFallback");
     const movieTableBody = document.querySelector("#movieTable tbody");
     const garlandLine = document.getElementById("garlandLine");
+    const surpriseOverlay = document.getElementById("surpriseOverlay");
 
     let isSpinning = false;
 
@@ -1020,8 +1049,37 @@
         });
       } else {
         streamingFallbackEl.textContent =
-          "Ikke registreret på DRTV, TV 2 Play, Netflix, Viaplay, Disney+, YouSee TV & Film eller discovery+ i denne oversigt – prøv evt. andre tjenester eller køb/lej.";
+          "Ikke fundet på de nævnte tjenester i denne oversigt – prøv evt. andre tjenester eller køb/lej.";
       }
+    }
+
+    function triggerSurprise(movie) {
+      // vis overraskelses-emoji'er
+      surpriseOverlay.innerHTML = "";
+      surpriseOverlay.classList.add("visible");
+
+      const icons = ["🎄", "🎅", "⭐", "🎁"];
+      const count = 40;
+
+      for (let i = 0; i < count; i++) {
+        const span = document.createElement("span");
+        span.className = "surprise-icon";
+        span.textContent = icons[i % icons.length];
+        const left = Math.random() * 100;
+        const top = 30 + Math.random() * 40; // mellem 30% og 70% i højden
+        span.style.left = left + "vw";
+        span.style.top = top + "vh";
+        span.style.animationDelay = (Math.random() * 0.4).toFixed(2) + "s";
+        surpriseOverlay.appendChild(span);
+      }
+
+      setTimeout(() => {
+        surpriseOverlay.classList.remove("visible");
+        surpriseOverlay.innerHTML = "";
+        showResult(movie);
+        isSpinning = false;
+        spinButton.disabled = false;
+      }, 900);
     }
 
     function spinWheel() {
@@ -1048,15 +1106,13 @@
 
       setTimeout(() => {
         const movie = movies[index];
-        showResult(movie);
-        isSpinning = false;
-        spinButton.disabled = false;
+        triggerSurprise(movie);
       }, 4000);
     }
 
     // Lyskæde-lys
     function createLights() {
-      const count = 32; // flere lys!
+      const count = 32; // mange lys!
       for (let i = 0; i < count; i++) {
         const light = document.createElement("span");
         light.className = "light";
@@ -1096,10 +1152,7 @@
       renderTable();
       createLights();
       createSnowflakes();
-
-      // Tilfældig startfilm (uden spin)
-      const initialIndex = Math.floor(Math.random() * movies.length);
-      showResult(movies[initialIndex]);
+      // Ingen film valgt ved start – vi lader teksten i HTML stå.
     });
 
     spinButton.addEventListener("click", spinWheel);
