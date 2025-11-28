@@ -534,8 +534,8 @@
 
     .surprise-icon {
       position: absolute;
-      font-size: 2.2rem;
-      animation: surprise-pop 0.8s ease-out forwards;
+      font-size: 3rem;
+      animation: surprise-pop 1.6s ease-out forwards;
     }
 
     @keyframes surprise-pop {
@@ -616,7 +616,7 @@
           <p id="currentDescription" class="current-description"></p>
 
           <div>
-            <div class="streaming-label">Kan (MÅSKE) streames på:</div>
+            <div id="streamingLabel" class="streaming-label">Kan (MÅSKE) streames på:</div>
             <div id="currentStreaming" class="badge-row"></div>
             <p id="streamingFallback" class="result-note"></p>
           </div>
@@ -963,6 +963,7 @@
     const movieTableBody = document.querySelector("#movieTable tbody");
     const garlandLine = document.getElementById("garlandLine");
     const surpriseOverlay = document.getElementById("surpriseOverlay");
+    const streamingLabel = document.getElementById("streamingLabel");
 
     let isSpinning = false;
 
@@ -1032,6 +1033,8 @@
     }
 
     function showResult(movie) {
+      streamingLabel.style.visibility = "visible";
+
       currentTitleEl.textContent = movie.title;
       currentYearEl.textContent = movie.year ? `(${movie.year})` : "";
       currentDescriptionEl.textContent = movie.description || "";
@@ -1054,32 +1057,34 @@
     }
 
     function triggerSurprise(movie) {
-      // vis overraskelses-emoji'er
+      // vis overraskelses-emoji'er – ekstra mange og større træer
       surpriseOverlay.innerHTML = "";
       surpriseOverlay.classList.add("visible");
 
-      const icons = ["🎄", "🎅", "⭐", "🎁"];
-      const count = 40;
+      const icons = ["🎄", "🎄", "🎄", "🎄", "🎅", "⭐", "🎁"];
+      const count = 90;
 
       for (let i = 0; i < count; i++) {
         const span = document.createElement("span");
         span.className = "surprise-icon";
         span.textContent = icons[i % icons.length];
         const left = Math.random() * 100;
-        const top = 30 + Math.random() * 40; // mellem 30% og 70% i højden
+        const top = 20 + Math.random() * 60; // mellem 20% og 80% i højden
         span.style.left = left + "vw";
         span.style.top = top + "vh";
-        span.style.animationDelay = (Math.random() * 0.4).toFixed(2) + "s";
+        span.style.fontSize = (2.6 + Math.random() * 1.8) + "rem";
+        span.style.animationDelay = (Math.random() * 0.6).toFixed(2) + "s";
         surpriseOverlay.appendChild(span);
       }
 
+      // Lad træerne være på skærmen lidt længere, før filmen afsløres
       setTimeout(() => {
         surpriseOverlay.classList.remove("visible");
         surpriseOverlay.innerHTML = "";
         showResult(movie);
         isSpinning = false;
         spinButton.disabled = false;
-      }, 900);
+      }, 2100);
     }
 
     function spinWheel() {
@@ -1152,7 +1157,8 @@
       renderTable();
       createLights();
       createSnowflakes();
-      // Ingen film valgt ved start – vi lader teksten i HTML stå.
+      // Streaminglabel skal ikke vises før første spin
+      streamingLabel.style.visibility = "hidden";
     });
 
     spinButton.addEventListener("click", spinWheel);
